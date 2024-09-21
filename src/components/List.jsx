@@ -36,7 +36,7 @@ const List = ({ lists, boardId }) => {
     }));
   };
 
-  const moveTask = (fromListId, toListId, taskId) => {
+  const moveTask = (fromListId, toListId, taskId, newPositionIndex) => {
     setTasks((prevTasks) => {
       const taskToMove = prevTasks[fromListId].find(
         (task) => task.id === taskId
@@ -47,16 +47,15 @@ const List = ({ lists, boardId }) => {
 
       if (fromListId === toListId) {
         // Reordering within the same list
-        const taskIndex = newFromList.findIndex((task) => task.id === taskId);
         const updatedTasks = [...newFromList];
-        updatedTasks.splice(taskIndex, 1); // Remove task
-        updatedTasks.push(taskToMove); // Add it to the end
+        updatedTasks.splice(newPositionIndex, 0, taskToMove); // Insert task at the new position
         return {
           ...prevTasks,
           [fromListId]: updatedTasks,
         };
       }
 
+      // Moving to a different list
       return {
         ...prevTasks,
         [fromListId]: newFromList,
@@ -66,7 +65,7 @@ const List = ({ lists, boardId }) => {
   };
 
   return (
-    <div className="flex space-x-4">
+    <div className="flex max-md:flex-wrap gap-2">
       {lists.map((list) => (
         <DroppableList
           key={list.id}
@@ -168,27 +167,27 @@ const TaskForm = ({ listId, onAddTask }) => {
         value={newTaskTitle}
         onChange={(e) => setNewTaskTitle(e.target.value)}
         placeholder="Task title"
-        className="border p-2 rounded mr-2"
+        className="border p-2 rounded"
       />
       <input
         type="text"
         value={newTaskDescription}
         onChange={(e) => setNewTaskDescription(e.target.value)}
         placeholder="Task description"
-        className="border p-2 rounded mr-2"
+        className="border p-2 rounded"
       />
       <input
         type="date"
         value={newTaskDueDate}
         onChange={(e) => setNewTaskDueDate(e.target.value)}
-        className="border p-2 rounded mr-2"
+        className="border p-2 rounded"
       />
       <input
         type="text"
         value={assignedUser}
         onChange={(e) => setAssignedUser(e.target.value)}
         placeholder="Assign to"
-        className="border p-2 rounded mr-2"
+        className="border p-2 rounded"
       />
       <button type="submit" className="bg-blue-500 text-white p-2 rounded">
         Add Task
