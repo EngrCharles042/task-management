@@ -26,13 +26,19 @@ const Board = () => {
   const addBoard = () => {
     if (newBoardTitle.trim()) {
       const newBoard = {
-        id: boards.length + 1,
+        id: Date.now(), // Use a unique id based on the current timestamp
         title: newBoardTitle,
-        lists: defaultLists, // Set predefined lists
+        lists: defaultLists,
       };
       setBoards([...boards, newBoard]);
       setNewBoardTitle("");
     }
+  };
+
+  const deleteBoard = (boardId) => {
+    setBoards((prevBoards) =>
+      prevBoards.filter((board) => board.id !== boardId)
+    );
   };
 
   const moveBoard = (fromIndex, toIndex) => {
@@ -61,7 +67,7 @@ const Board = () => {
         </button>
       </div>
       <div className="flex flex-col space-y-10">
-        {boards.length === 0 ? ( // Check if there are no boards
+        {boards.length === 0 ? (
           <p className="text-gray-500">
             No boards added yet. Create a new board!
           </p>
@@ -72,6 +78,7 @@ const Board = () => {
               board={board}
               index={index}
               moveBoard={moveBoard}
+              deleteBoard={deleteBoard}
             />
           ))
         )}
@@ -80,31 +87,35 @@ const Board = () => {
   );
 };
 
-const DraggableBoard = ({ board, index, moveBoard }) => {
-  // useDrag hook for making the board draggable
+const DraggableBoard = ({ board, index, moveBoard, deleteBoard }) => {
   const [, drag] = useDrag({
     type: "BOARD",
     item: { index },
   });
 
-  // useDrop hook for allowing the board to be dropped and reordered
   const [, drop] = useDrop({
     accept: "BOARD",
     hover(item) {
       if (item.index !== index) {
         moveBoard(item.index, index);
-        item.index = index; // Update dragged item's index
+        item.index = index;
       }
     },
   });
 
-  // Combine drag and drop ref, attaching it to a native DOM element like div
   return (
     <div
       ref={(node) => drag(drop(node))}
-      className="bg-gray-100 p-4 rounded-lg"
+      className="bg-gray-100 p-4 rounded-lg relative"
     >
       <h2 className="font-semibold text-lg mb-2">{board.title}</h2>
+      <button
+        onClick={() => deleteBoard(board.id)}
+        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded"
+      >
+        Delete
+      </button>
+
       <List lists={board.lists} boardId={board.id} />
     </div>
   );
