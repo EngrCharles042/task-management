@@ -36,6 +36,15 @@ const List = ({ lists, boardId }) => {
     }));
   };
 
+  const updateTask = (listId, updatedTask) => {
+    setTasks((prevTasks) => ({
+      ...prevTasks,
+      [listId]: prevTasks[listId].map((task) =>
+        task.id === updatedTask.id ? updatedTask : task
+      ),
+    }));
+  };
+
   const moveTask = (fromListId, toListId, taskId, newPositionIndex) => {
     setTasks((prevTasks) => {
       const taskToMove = prevTasks[fromListId].find(
@@ -75,6 +84,7 @@ const List = ({ lists, boardId }) => {
           moveTask={moveTask}
           addTask={addTask}
           deleteTask={deleteTask}
+          updateTask={updateTask} // Pass the update function down
         />
       ))}
     </div>
@@ -88,6 +98,7 @@ const DroppableList = ({
   moveTask,
   addTask,
   deleteTask,
+  updateTask, // Add this prop
 }) => {
   const [{ isOver }, drop] = useDrop({
     accept: "TASK",
@@ -112,13 +123,14 @@ const DroppableList = ({
           task={task}
           listId={list.id}
           onDelete={() => deleteTask(list.id, task.id)}
+          onSave={(updatedTask) => updateTask(list.id, updatedTask)} // Pass this function
         />
       ))}
     </div>
   );
 };
 
-const DraggableTask = ({ task, listId, onDelete }) => {
+const DraggableTask = ({ task, listId, onDelete, onSave }) => {
   const [{ isDragging }, drag] = useDrag({
     type: "TASK",
     item: { id: task.id, listId },
@@ -134,7 +146,7 @@ const DraggableTask = ({ task, listId, onDelete }) => {
         isDragging ? "opacity-50" : ""
       }`}
     >
-      <Task task={task} onDelete={onDelete} />
+      <Task task={task} onDelete={onDelete} onSave={onSave} /> {/* Pass onSave */}
     </div>
   );
 };

@@ -1,7 +1,6 @@
-// src/components/Task.js
 import React, { useState } from 'react';
 
-const Task = ({ task, onDelete }) => {
+const Task = ({ task, onSave, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDescription, setEditedDescription] = useState(task.description);
@@ -9,7 +8,14 @@ const Task = ({ task, onDelete }) => {
   const [assignedUser, setAssignedUser] = useState(task.assignedTo);
 
   const handleSave = () => {
-    // Logic to save the changes can go here
+    const updatedTask = {
+      ...task,
+      title: editedTitle,
+      description: editedDescription,
+      dueDate: editedDueDate,
+      assignedTo: assignedUser,
+    };
+    onSave(updatedTask); // Call the onSave function to update the task in the parent
     setIsEditing(false);
   };
 
